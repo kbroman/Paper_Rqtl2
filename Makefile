@@ -14,3 +14,6 @@ clean:
 
 clean_cache: clean
 	rm R/cache/*.rds R/cache/*.zip R/cache/*.RData
+
+web: rqtl2_paper.pdf
+	scp rqtl2_paper.pdf broman-10.biostat.wisc.edu:Website/publications/
