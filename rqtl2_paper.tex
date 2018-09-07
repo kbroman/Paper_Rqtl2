@@ -350,7 +350,7 @@ generate the detailed R documentation files.
 In contrast to R/qtl1, which includes almost no formal software tests,
 R/qtl2 includes extensive unit tests to ensure correctness. We use the
 R package testthat \citep{testthat} for this purpose. The use of unit
-tests helps to catch bugs earlier, and has revealed several bugs in
+tests helps us to catch bugs earlier, and revealed several bugs in
 R/qtl1.
 
 
@@ -394,9 +394,9 @@ At present, QTL analysis in R/qtl2 is solely by genome scans with
 single-QTL models. Consideration of multiple-QTL models will be
 particularly important for exploring the possibility of multiple
 causal SNPs in a QTL region, along the lines of the CAVIAR software
-\citep{caviar}.
+\citep{caviar} or the method of \citet{deng2018}.
 
-Finally, we have currently focused solely on Haley-Knott regression
+We have currently focused solely on Haley-Knott regression
 \citep{haley1992} for QTL analysis. This has a big advantage in terms
 of computational speed, but it does not fully account for the
 uncertainty in genotype reconstructions. But the QTL analysis
@@ -407,6 +407,16 @@ multiple imputation \citep{sen2001}. While this has not been a high
 priority in the development of R/qtl2, ultimately we will include
 implementations of these sorts of approaches, to better handle regions
 with reduced genotype information.
+
+R/qtl2 is an important update to the popular R/qtl software,
+expanding the scope to include multi-parent populations, providing
+improved handling of high-dimensional data, and enabling genome scans
+with a linear mixed model to account for population structure. R/qtl1
+served as an important hub upon which other developers could build; we
+hope that R/qtl2 can serve a similar role for the genetic analysis of
+multi-parent populations.
+
+
 
 \clearpage
 \section*{Acknowledgments}
