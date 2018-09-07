@@ -1,0 +1,425 @@
+\documentclass[12pt,letterpaper]{article}
+
+%%%%% packages
+\usepackage[top=1in, bottom=1in, left=1in, right=1in]{geometry}
+\usepackage{lscape,pdflscape}
+\usepackage{alltt,amsmath,caption,color,epsfig,enumerate,enumitem,float,
+  graphicx,hyperref,indentfirst,pdfpages,relsize,sectsty,setspace,subcaption,times}
+\hypersetup{colorlinks, allcolors={black}}  % default link color
+\hypersetup{pdfpagemode=UseNone} % don't show bookmarks on initial view
+\setlength{\rightskip}{0pt plus 1fil} % makes ragged right
+\usepackage[authoryear]{natbib}
+\bibpunct{(}{)}{;}{a}{}{,}
+%%%%%%%%%%%%%%
+
+\allsectionsfont{\normalfont\sffamily\bfseries}
+\subsectionfont{\normalfont\fontsize{12}{15}\sffamily\bfseries}
+
+\newcommand{\LOD}{\text{LOD}}
+\renewcommand{\figurename}{\textbf{Figure}}
+\renewcommand{\thefigure}{\textbf{\arabic{figure}}}
+
+\begin{document}
+
+\setstretch{2.0}
+
+\vspace*{8mm}
+\begin{center}
+
+\textbf{\Large R/qtl2: software for mapping quantitative trait loci
+  with high-dimensional data and multi-parent populations}
+
+\bigskip \bigskip \bigskip \bigskip
+
+{\large Karl W. Broman$^{*,1}$, Daniel M. Gatti$^{**}$, Petr Simecek$^{**}$,
+  Nicholas A. Furlotte$^{\S}$, \\
+  Pjotr Prins$^{\dagger\dagger,\S\S}$, \'Saunak
+  Sen$^{\ddagger\ddagger}$, Brian S. Yandell$^{\dagger,\ddagger}$,
+  Gary A. Churchill$^{**}$}
+
+\bigskip \bigskip
+
+Departments of $^{*}$Biostatistics and Medical Informatics,
+$^{\dagger}$Horticulture, and $^{\ddagger}$Statistics, University of
+Wisconsin--Madison, Madison, Wisconsin 53706; $^{\S}$23andMe, Mountain
+View, California 94043; $^{**}$The Jackson Laboratory, Bar Harbor, Maine 04609;
+Departments of $^{\dagger\dagger}$Genetics, Genomics, and Informatics; and
+$^{\ddagger\ddagger}$Preventive Medicine, University of
+Tennessee Health Sciences Center, Memphis, Tennessee 38163;
+$^{\S\S}$Center for Molecular Medicine, University Medical Center Utrecht, 3584CT Utrecht, The
+Netherlands
+
+\end{center}
+
+%%% Add today's date
+\def\todayISO{\leavevmode\hbox{\the\year-\twodigits\month-\twodigits\day}}
+\def\twodigits#1{\ifnum#1<10 0\fi\the#1}
+
+\vspace{3in} \hfill {\footnotesize \todayISO}
+%%%%%%%%%%%%%%%%%
+
+\newpage
+
+\noindent \textbf{Running head:} R/qtl2 software
+
+
+\bigskip \bigskip \bigskip
+
+\noindent \textbf{Key words:} software, QTL,
+multi-parent populations, MAGIC, Diversity Outbred mice, heterogeneous stock
+
+
+
+
+\bigskip \bigskip \bigskip
+
+\noindent \textbf{$^1$Corresponding author:}
+
+\begin{tabular}{lll}
+ \\
+ \hspace{1cm} & \multicolumn{2}{l}{Karl W Broman} \\
+ & \multicolumn{2}{l}{Department of Biostatistics and Medical Informatics} \\
+ & \multicolumn{2}{l}{University of Wisconsin--Madison} \\
+ & \multicolumn{2}{l}{2126 Genetics-Biotechnology Center} \\
+ & \multicolumn{2}{l}{425 Henry Mall} \\
+ & \multicolumn{2}{l}{Madison, WI 53706} \\
+ \\
+ & Phone: & 608--262--4633 \\
+ & Email: & \verb|kbroman@biostat.wisc.edu|
+\end{tabular}
+
+
+\newpage
+
+\section*{Abstract}
+
+R/qtl2 is an interactive software environment for mapping quantitative trait loci (QTL)
+in experimental populations.
+The R/qtl2 software is a complete rewrite of the widely-used R/qtl software package.
+The new software expands the scope of R/qtl to include
+multiparent populations derived from more than two founder strains, such as the
+Collaborative Cross and Diversity Outbred mice, heterogeneous stocks, and
+MAGIC plant populations. R/qtl2 is designed to handle modern high-density genotyping data
+and high-dimensional molecular phenotypes including gene expression and proteomics.
+R/qtl2 includes the ability to perform genome scans using a linear mixed model
+to account for population structure, and also includes features to impute SNPs
+based on founder strain genomes and to carry out association mapping.
+The R/qtl2 software provides all of the basic features needed for QTL mapping,
+including graphical displays and summary reports, and it can be extended
+through the creation of add-on packages.
+R/qtl2 comes with a test
+framework and is free and open source software written in the R and
+C++ programming languages.
+
+\newpage
+
+\section*{Introduction}
+
+There has been a resurgence of interest in the mapping of quantitative
+trait loci (QTL) in experimental organisms, spurred in part by the use
+of gene expression phenotypes \citep[eQTL mapping; see][]{albert2015}
+to more rapidly identify the underlying genes, and by the development
+of multi-parent populations, including heterogeneous
+stocks \citep{mott2000,mott2002}, MAGIC lines \citep{cavanagh2008, kover2009}, the Collaborative
+Cross \citep{churchill2004}, and Diversity Outbred mice
+\citep{churchill2012, svenson2012}.
+
+There are numerous software packages for QTL mapping in experimental
+populations, including Mapmaker/QTL \citep{lincoln1990}, QTL
+Cartographer \citep{Basten2002}, R/qtl \citep{broman2003,
+  broman_sen}, and MapQTL \citep{mapqtl}.
+There are a smaller number of packages for QTL analysis in
+multi-parent populations, including DOQTL \citep{gatti2014}, HAPPY
+\citep{mott2000}, and mpMap \citep{mpMap}.
+
+The original R/qtl (hereafter, R/qtl1) is widely used, and has a number of
+advantages compared to proprietary alternatives. R/qtl1 includes a quite comprehensive set of QTL mapping
+methods, including multiple-QTL exploration and model selection \citep{MQMpaper,broman2002,manichaikul2009}, as
+well as extensive visualization
+and data diagnostics tools \citep{broman_sen}. Further, users and developers both benefit by it
+being an add-on package for the general statistical software, R
+\citep{RCore}. A number of other R packages have been written to work in
+concert with R/qtl1, including ASMap \citep{ASMap}, ctl \citep{ctl},
+dlmap \citep{dlmap}, qtlcharts \citep{qtlcharts}, vqtl \citep{vqtl}, and
+wgaim \citep{wgaim}.
+
+R/qtl1 has a number of limitations
+\citep[see][]{broman2014}, the most critical of which is that the
+central data structure generally limits its use to biparental crosses.
+Also, R/qtl1 was designed at a time when a dataset with more than 100 genetic
+markers was considered large.
+
+Rather than extend R/qtl1 for multi-parent populations, we decided to
+start fresh. R/qtl2 is a completely redesigned R package for QTL
+analysis that can handle a variety of multi-parent populations and is
+suited for high-dimensional genotype and phenotype data. To
+handle population structure, QTL analysis may be performed with a
+linear mixed model that includes a residual polygenic effect. The
+R/qtl2 software is available from its web site
+(\url{https://kbroman.org/qtl2}) as well as GitHub
+(\url{https://github.com/rqtl/qtl2}).
+
+
+\clearpage
+\section*{Features}
+
+QTL analysis in multi-parent populations can be split into two parts:
+calculation of genotype probabilities using multipoint SNP genotypes,
+and the genome scan to evaluate the association between genotype and
+phenotype, using those probabilities. As with R/qtl1, we use a hidden
+Markov model \citep[HMM; see][App.\ D]{broman_sen} for the calculation
+of genotype probabilities. As the source of genotype information, R/qtl2
+considers SNP genotypes, generally derived from microarrays. At
+present, we focus solely on marker genotypes rather than array
+intensities or allele counts/dosages from genotyping-by-sequencing (GBS)
+assays.
+
+R/qtl2 includes implementations of the usual sorts of two-way crosses
+(backcross, intercross, doubled haploids, two-way recombinant inbred
+lines by selfing or sibling mating, and two-way advanced intercross
+populations), and several different types of multi-parent populations
+(4- and 8-way recombinant inbred lines by sibling mating; 4-, 8-, and
+16-way recombinant inbred lines by selfing; 3-way advanced intercross
+populations, Diversity Outbred mice, heterogeneous stocks, 19-way MAGIC
+lines like the \citet{kover2009} Arabidopsis lines, and 6-way doubled
+haploids following a design of maize MAGIC lines being developed at
+the University of Wisconsin--Madison.
+
+A key component of the HMM is the transition matrix (or ``step''
+probabilities), which are specific to the cross design.
+Transitions represent locations where the ancestry of chromosomal segments
+change from one founder strain haplotype to another.
+The transition probabilities
+for multi-way recombinant inbred lines are taken from
+\citet{broman2005}. The transition probabilities for heterogeneous
+stocks and Diversity Outbred mice are taken from \citet{broman2012b}, which
+uses the results of \citet{broman2012a}.
+
+At present, R/qtl2 assumes dense marker information and a low level of
+uncertainty in the haplotype reconstructions, so that we may rely on
+Haley-Knott regression \citep{haley1992} for genome scans to establish
+genotype-phenotype association. This may be performed either with a
+simple linear model \citep[as in][]{haley1992}, or with a linear mixed
+model \citep{yu2006, kang2008, lippert2011} that includes a residual
+polygenic effect to account for population structure. The latter may
+also be performed using kinship matrices derived using the
+``leave-one-chromosome-out'' (LOCO) method \citep[see][]{yang2014}.
+
+To establish statistical significance of evidence for QTL, accounting
+for a genome scan, R/qtl2 facilitates the use of permutation tests
+\citep{churchill1994}. For multi-parent populations with analysis via
+a linear mixed model, we permute the rows of the haplotype reconstructions as
+considered in \citet{cheng2013}.
+
+R/qtl2 includes a variety of data diagnostic tools, which can be
+particularly helpful for data on multi-parent populations where
+the SNP genotypes are incompletely informative
+(i.e., SNP genotypes do not fully define the corresponding founder haplotype).
+These include SNP
+genotyping error LOD scores \citep{Lincoln1992} and estimated
+crossover counts.
+
+R/qtl2 reproduces the functionality of DOQTL \citep{gatti2014} but
+targets a broader set of multi-parent populations, in addition to
+Diversity Outbred mice.
+(DOQTL will ultimately be deprecated and replaced with R/qtl2.)
+Fig.~1 contains a reproduction, using
+R/qtl2, of Fig.~5 from \citet{gatti2014}. This is a QTL analysis of
+constitutive neutrophil counts in 742 Diversity Outbred mice (from
+generations 3--5) that were genotyped with the first generation Mouse
+Universal Genotyping Array (MUGA) \citep{gigamuga}, which contained
+7,851 markers, of which we are using 6,413.
+
+\begin{figure}
+  \includegraphics[width=\textwidth]{Figs/fig1.png}
+  \caption{Reconstruction of Fig.~5 from \citet{gatti2014}, on the
+    mapping of constitutive neutrophil counts in 742 Diversity Outbred
+    mice. (A) LOD scores from a genome scan using the full model
+    (comparing all 36 genotypes for the autosomes and 44 genotypes for
+    the X chromosome); the dashed horizontal line indicates the 5\%
+    genome-wide significance threshold, based on a permutation test.
+    (B) LOD scores from a genome scan with an additive allele model
+    (compare the 8 founder haplotypes). (C) LOD scores from a SNP
+    association scan, using all SNPs that were genotyped in the eight
+    founder lines. (D) Best linear unbiased predictors (BLUPs) of the
+    eight haplotype effects in the additive model, along with the LOD
+    curve on chromosome 1. (E) SNP association results in the region
+    of the chromosome 1 QTL, along with genes in the region; SNPs with
+    LOD scores within 1.5 of the maximum are highlighted in pink.
+  All figures are produced with R/qtl2.}
+\end{figure}
+
+The regression model that R/qtl2 applies in a genome scan is determined by the
+the HMM output in the genotype probabilities data structure.
+For an 8-parent MPP such as the DO mice, there are 36 possible diplotypes
+(44 on the X chromosome) and the genome scan will be based on a
+regression model with 35 degrees of freedom.
+With so many degrees of freedom, the model typically lacks power to detect QTL.
+An alternative representation collapses the 36 states to 8 founder "dosages"
+and uses a regression model with 7 degrees of freedom, assuming that the founder effects are additive at any given locus.
+R/qtl2 has the ability to incorporate SNP (and other variant) data from founder strains and
+to impute biallelic genotypes for every SNP.  The genome scan on imputed SNPs is
+equivalent to an association mapping scan and can employ a additive
+(one degree of freedom) or general (two degrees of freedom)
+regression model.
+
+Fig.~1A contains the LOD curves from a genome scan using a full model
+comparing all 36 possible genotypes
+with log neutrophil count as the phenotype and with sex and log white blood
+cell count as covariates. The horizontal dashed line indicates the 5\%
+genome-wide significance level, derived from a permutation test,
+with separate thresholds for the autosomes and the X chromosome, using
+the technique of \citet{broman2006}. Fig.~1B contains the LOD curves
+from a genome scan using an additive allele model (corresponding to a
+test with 7 degrees of freedom), and Fig.~1C contains a SNP
+association scan, using a test with 2 degrees of freedom. All of these
+analyses use a linear mixed model with kinship matrices derived using
+the ``leave-one-chromosome-out'' (LOCO) method.
+
+Fig.~1D shows the estimated QTL effects, assuming a single QTL with
+additive allele effects on chr 1, and sliding the position of the QTL
+across the chromosome. This is analogous to the estimated effects in
+Fig.~5D of \citet{gatti2014}, but here we present Best Linear Unbiased
+Predictors (BLUPs), taking the QTL effects to be random effects. This
+results in estimated effects that have been shrunk towards 0, which
+helps to clean up the figure and focus attention on the region of
+interest.
+
+Fig.~1E shows individual SNP association results, for the 6 Mbp region
+on chr 1 that contains the QTL. As with the DOQTL software, we use all
+available SNPs for which genotype data are available in the 8 founder
+lines, and impute the SNP genotypes in the Diversity Outbred mice, using the
+individuals' genotype probabilities along with the founder strains'
+SNP genotypes.
+
+Fig.~1 shows a number of differences from the results reported in
+\citet{gatti2014}, including that we see nearly-significant loci on
+chr 5 and 17 in the full model (Fig.~1A), and we see a second
+significant QTL on chr 7 with the additive allele model (Fig.~1B).
+Also, in Fig.~1E,  we see associated
+SNPs not just at $\sim$128.6 Mbp near the \emph{Cxcr4\/} gene
+\citep[as in][]{gatti2014}, but also a
+group of associated SNPs at $\sim$ 132.4 Mbp, near \emph{Tmcc2}. The
+differences between these results and those of \citet{gatti2014} are
+largely due to differences in genotype probability calculations (data
+not shown).
+
+\subsection*{Data and software availability}
+
+The data for Fig.~1 are available at the Mouse Phenotype Database
+(\url{https://phenome.jax.org/projects/Gatti2}). In addition, R/qtl2
+input files for these data are available at GitHub
+(\url{https://github.com/rqtl/qtl2data}).
+
+The R/qtl2 software is available from its web site
+(\url{https://kbroman.org/qtl2}) as well as GitHub
+(\url{https://github.com/rqtl/qtl2}). The software is licensed under
+the GNU General Public License version 3.0.
+
+The code to create Fig.~1 is available at GitHub at
+\url{https://github.com/kbroman/Paper_Rqtl2}.
+
+\clearpage
+\section*{Implementation}
+
+R/qtl2 is developed as a free and open source
+add-on package for the general statistical software, R
+\citep{RCore}. Much of the code is written in R, but computationally
+intensive aspects are written in C++.  (Computationally intensive
+aspects of R/qtl1 are in C.) We use Rcpp
+\citep{eddelbuettel2011,Rcppbook} for the interface between R and C++,
+to simplify code and reduce the need for copying data in memory.
+
+Linear algebra calculations, such as matrix decomposition and linear
+regression, are a central part of QTL analysis. We use
+RcppEigen \citep{RcppEigen} and the Eigen C++ library \citep{eigen}
+for these calculations. For the fit of linear mixed models, to account
+for population structure with a residual polygenic effect, we closely
+followed code from PyLMM \citep{pylmm}. In particular, we use the
+basic technique described in \citet{kang2008}, of taking the eigen
+decomposition of the kinship matrix.
+
+We use roxygen2 \citep{roxygen2} to develop the documentation. R
+packages make it easy to provide detailed documentation to users, but
+the R documentation format is tedious and separate from the function
+definitions and so requires the maintenance of two versions of
+function documentation in separate places. Roxygen2 is a documentation
+tool that uses specially-formatted comments near the original code to
+generate the detailed R documentation files.
+
+In contrast to R/qtl1, which includes almost no formal software tests,
+R/qtl2 includes extensive unit tests to ensure correctness. We use the
+R package testthat \citep{testthat} for this purpose. The use of unit
+tests helps to catch bugs earlier, and has revealed several bugs in
+R/qtl1.
+
+
+
+
+\clearpage
+\section*{Discussion}
+
+R/qtl2 is a reimplementation of the R package R/qtl1, for QTL mapping
+in multi-parent populations, with improved handling of
+high-dimensional data. A variety of multi-parent populations have been
+implemented, including heterogeneous stocks, the Collaborative Cross,
+Diversity Outbred mice, and certain types of MAGIC lines. R/qtl2
+includes the ability to perform genome scans via a linear mixed model,
+accounting for population structure via a residual polygenic effect.
+
+While the basic functionality of R/qtl2 is complete, there are a
+number of areas for further development. In particular, we would like
+to further expand the set of crosses that may be considered, including
+partially-inbred recombinant inbred lines (so that we may deal with
+residual heterozygosity, which presently is ignored). We have currently
+been focusing on exact calculations for specific designs, but the
+mathematics involved can be tedious. We would like to have a more
+general approach for genotype reconstruction in multi-parent
+populations, along the lines of RABBIT \citep{zheng2015} or STITCH
+\citep{davies2016}. Plant researchers have been particularly creative
+in developing unusual sets of MAGIC populations, and by our current
+approach, each design requires the development of design-specific
+code, which is difficult to sustain.
+
+Another important area of development is the handling of
+genotyping-by-sequencing (GBS) data. We are currently focusing solely
+on called genotypes. With low-coverage GBS data, it is difficult
+to get quality genotype calls at individual SNPs, and there will be
+considerable advantage to using the pairs of allele counts and
+combining information across SNPs. Extending the current HMM
+implementation in R/qtl2 to handle pairs of allele counts for GBS data
+appears straightforward.
+
+At present, QTL analysis in R/qtl2 is solely by genome scans with
+single-QTL models. Consideration of multiple-QTL models will be
+particularly important for exploring the possibility of multiple
+causal SNPs in a QTL region, along the lines of the CAVIAR software
+\citep{caviar}.
+
+Finally, we have currently focused solely on Haley-Knott regression
+\citep{haley1992} for QTL analysis. This has a big advantage in terms
+of computational speed, but it does not fully account for the
+uncertainty in genotype reconstructions. But the QTL analysis
+literature has a long history of methods for dealing with this
+genotype uncertainty, including
+interval mapping \citep{lander1989} and
+multiple imputation \citep{sen2001}. While this has not been a high
+priority in the development of R/qtl2, ultimately we will include
+implementations of these sorts of approaches, to better handle regions
+with reduced genotype information.
+
+\clearpage
+\section*{Acknowledgments}
+
+This work was supported in part by National Institutes of Health
+grants R01GM074244 (to K.W.B.), R01GM070683 (to K.W.B. and G.A.C.),
+and R01GM123489 (to \'S.S.).
+
+
+\clearpage
+\bibliographystyle{genetics}
+\renewcommand*{\refname}{\normalfont\sffamily\bfseries Literature Cited}
+\bibliography{rqtl2_paper}
+
+
+\end{document}

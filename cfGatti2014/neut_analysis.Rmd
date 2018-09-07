@@ -1,0 +1,148 @@
+---
+title: "Re-re-analysis of Gatti et al (2014) data"
+output:
+    html_document:
+        code_folding: "show"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(fig.height=11, fig.width=11,
+                      warning=FALSE, message=FALSE)
+```
+
+In reanalyzing the [Gatti et al
+(2014)](https://doi.org/10.1534/g3.114.013748) data for the R/qtl2
+paper, I noticed some differences from the original results (in Fig. 5
+of Gatti et al 2014), particularly that the LOD score on chr 7 (for
+the additive allele analysis) was much higher in the new results, and
+the SNP association results showed not just the SNPs near 128.6 Mbp
+showing association, but also a second set of SNPs near 132.4 Mbp.
+
+We believe that these differences are mainly due to differences in the
+genotype probabilities from DOQTL vs R/qtl2. And so here, I'll revisit
+those results using the original genotype probabilities from DOQTL.
+
+I'll first load some libraries:
+
+```{r load_libraries}
+library(broman)
+library(qtl2)
+library(qtl2convert)
+library(data.table)
+```
+
+I'll next load the original data, which were taken from
+the Mouse Phenome Database, <https://phenome.jax.org/projects/Gatti2>. The
+`JAXWEST.additive.Rdata` file was extracted from `Gatti_2014.zip` at
+MPDcontains a single object `probs`; the phenotype data are in a
+single CSV file.
+
+```{r load_data}
+load("JAXWEST.additive.Rdata") # contains probs
+phe <- fread("Gatti_2014_pheno.csv", data.table=FALSE)
+
+# check that the sample IDs are the same
+stopifnot(all(rownames(probs) == phe$Sample.ID))
+```
+
+I'll further load the SNP information, taken from
+<ftp://ftp.jax.org/MUGA>.
+
+```{r load_muga_map}
+load("muga_snps.Rdata") # contains muga_snps
+```
+
+I'll now convert the data to R/qtl2 formats:
+
+- Create an `is_female` logical vector
+- Convert the genotype probabilities
+- Convert the physical and genetic maps
+- Pull out the desired covariates and the phenotype to be scanned.
+
+```{r convert_data}
+# is_female object
+is_female <- setNames(phe$Sex=="F", phe$Sample.ID)
+
+# convert probs to R/qtl2 format
+apr_doqtl <- probs_doqtl_to_qtl2(probs, muga_snps, is_female=is_female, marker_column="marker")
+
+# genetic and physical maps
+gmap_doqtl <- map_df_to_list(muga_snps)
+pmap_doqtl <- map_df_to_list(muga_snps, pos_column="pos")
+
+# covariates + phenotype for scan
+addcovar <- cbind(sex=(phe$sex=="M")*1,
+                  wbc=log10(phe$WBC))
+pheno <- cbind(neut=log10(phe$NEUT))
+rownames(pheno) <- rownames(addcovar) <- phe$Sample.ID
+```
+
+I'll now calculate the kinship matrix and perform a genome scan. I'm
+following what's described in [Gatti et al
+(2014)](https://doi.org/10.1534/g3.114.013748)
+
+> We regressed log neutrophil counts on founder allele dosages at each
+> marker using a kinship correction with sex and log white blood cell
+> counts as covariates.
+
+```{r genome_scan}
+# kinship
+k_doqtl <- calc_kinship(apr_doqtl, cores=0)
+
+# genome scan
+out_doqtl <- scan1(apr_doqtl, pheno, k_doqtl, addcovar=addcovar, cores=0)
+```
+
+For comparison, I'll calculate the results using R/qtl2-based allele
+dosages.
+
+```{r load_rqtl2_allele_probs}
+apr_rqtl2 <- readRDS("../R/cache/aprobs.rds")
+
+# load the corresponding maps
+load("../R/cache/maps_n_phe.RData")
+gmap_rqtl2 <- insert_pseudomarkers(gmap[1:20], stepwidth="max", step=0.2)
+pmap_rqtl2 <- interp_map(gmap_rqtl2, gmap[1:20], pmap[1:20])
+
+# check that the IDs are the same
+stopifnot( all(rownames(apr_rqtl2[[1]]) == rownames(apr_doqtl[[1]])) )
+
+k_rqtl2 <- calc_kinship(apr_rqtl2, cores=0)
+out_rqtl2 <- scan1(apr_rqtl2, pheno, k_rqtl2, addcovar=addcovar, cores=0)
+```
+
+Here are the results, with the DOQTL probabilities on top and the
+R/qtl2 probabilities below. As you can see, the LOD score on chr 7
+increases a bit with the R/qtl2 probabilities (from
+`r myround(maxlod(out_doqtl, gmap_doqtl, chr=7), 1)` to
+`r myround(maxlod(out_rqtl2, gmap_rqtl2, chr=7), 1)`). There's an even
+bigger increase if we use the "loco" method, which I had done in the
+R/qtl2 paper, but which was not done in Gatti et al. (2014).
+
+```{r plot_lod}
+par(mfrow=c(2,1))
+plot(out_doqtl, gmap_doqtl, main="DOQTL probs")
+plot(out_rqtl2, gmap_rqtl2, main="R/qtl2 probs")
+```
+
+Let's further perform SNP scans in the key region on chr 1.
+
+```{r scan_snps}
+# scan SNPs in chr 1 region
+qv <- create_variant_query_func("~/Data/CCdb/cc_variants.sqlite")
+out_snps_doqtl <- scan1snps(apr_doqtl, pmap_doqtl, pheno, k_doqtl, addcovar, query_func=qv,
+                          chr=1, start=127, end=134, cores=0, keep_all_snps=TRUE)
+out_snps_rqtl2 <- scan1snps(apr_rqtl2, pmap_rqtl2, pheno, k_rqtl2, addcovar, query_func=qv,
+                          chr="1", start=127, end=134, cores=0, keep_all_snps=TRUE)
+```
+
+Here is a plot of the results, with the results with the DOQTL
+probabilities on the top and those with the R/qtl2 probabilities on
+the bottom. The second set of interesting SNPs are not nearly so
+interesting with the original DOQTL probabilities.
+
+```{r plot_snp_results}
+par(mfrow=c(2,1))
+plot(out_snps_doqtl$lod, out_snps_doqtl$snpinfo, main="DOQTL probs")
+plot(out_snps_rqtl2$lod, out_snps_rqtl2$snpinfo, main="R/qtl2 probs")
+```

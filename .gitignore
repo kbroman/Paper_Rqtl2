@@ -1,0 +1,10 @@
+R/cache
+Figs/
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.pdf
+copy_from_bitbucket.sh
+cfGatti2014/JAXWEST.additive.Rdata
