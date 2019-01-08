@@ -92,10 +92,17 @@ odd <- seq(1, 19, by=2)
 even <- seq(2,19, by=2)
 
 res <- 256
-pdf("../Figs/fig2.pdf", height=7.5, width=10, pointsize=14)
+for(figtype in c("pdf", "eps")) {
+if(figtype=="pdf")  {
+    pdf("../Figs/fig2.pdf", height=7.5, width=10, pointsize=14)
+} else {
+    postscript("../Figs/fig2.eps", height=7.5, width=10, paper="special", horizontal=FALSE, onefile=FALSE)
+}
 par(mar=c(3.8, 3.5, 1.6, 1.1))
 panel_lab_adj <- c(0.10, 0.06)
 panel_lab_cex <- 1.3
+
+if(figtype=="eps") panel_lab_adj[1] <- 0.08
 
 blue <- "slateblue"
 red <- "violetred"
@@ -155,3 +162,4 @@ for(i in 1:3) {
 }
 
 dev.off()
+} # end loop over fig type
