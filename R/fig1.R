@@ -121,6 +121,10 @@ if(file.exists(file)) {
 }
 genes <- qg(chr=1, start=li[1], end=li[3])
 
+# line colors
+altcolor <- "green4"
+linecolor <- "violetred"
+
 # subset genes to 1/2
 sub <- sort(unique(c(sample(nrow(genes), nrow(genes)/2),
                      match(c("Cxcr4", "Tmcc2"), genes$Name))))
@@ -146,8 +150,6 @@ ymx_add <- maxlod(out_add)*1.04
 ymx_snps <- thr_snps$A/thr_add$A*maxlod(out_add)*1.04
 
 # make the plots
-altcolor <- "green4"
-linecolor <- "violetred"
 panel_lab_adj <- c(0.12, 0.06)
 panel_lab_cex <- 1.3
 
@@ -172,16 +174,16 @@ u <- par("usr")
 text(u[1]-diff(u[1:2])*panel_lab_adj[1], u[4]+diff(u[3:4])*panel_lab_adj[2], "A", font=2, xpd=TRUE, cex=panel_lab_cex)
 
 plot(out_add, pmap, xlab="", ylim=c(0, ymx_add), altcol=altcolor)
+u <- par("usr")
 segments(u[1], thr_add$A, endA, thr_add$A, col=linecolor, lty=2)
 segments(endA, thr_add$X, u[2], thr_add$X, col=linecolor, lty=2)
-u <- par("usr")
 text(u[1]-diff(u[1:2])*panel_lab_adj[1], u[4]+diff(u[3:4])*panel_lab_adj[2], "B", font=2, xpd=TRUE, cex=panel_lab_cex)
 
 plot(out_snps$lod, out_snps$snpinfo, altcol=altcolor, xlab="",
      ylim=c(0, ymx_snps))
+u <- par("usr")
 segments(u[1], thr_snps$A, endA, thr_snps$A, col=linecolor, lty=2)
 segments(endA, thr_snps$X, u[2], thr_snps$X, col=linecolor, lty=2)
-u <- par("usr")
 text(u[1]-diff(u[1:2])*panel_lab_adj[1], u[4]+diff(u[3:4])*panel_lab_adj[2], "C", font=2, xpd=TRUE, cex=panel_lab_cex)
 
 par(mar=c(0.5,4.1,1.6,1.1))
