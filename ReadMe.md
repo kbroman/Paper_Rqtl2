@@ -1,5 +1,7 @@
 ## R/qtl2: QTL mapping with high-dimensional data and multiple-parent populations
 
+[![doi badge](https://zenodo.org/badge/DOI/10.5281/zenodo.2586997.svg)](https://doi.org/10.5281/zenodo.2586997)
+
 This repository contains the source for a manuscript on
 [R/qtl2](http://kbroman.org/qtl2), a re-implementation of the QTL
 mapping software [R/qtl](https://rqtl.org).
