@@ -9,7 +9,7 @@ if(file.exists(rdsfile)) {
     arabmagic <- readRDS(rdsfile)
 } else {
     zipfile <- paste0("https://raw.githubusercontent.com/rqtl/",
-                      "qtl2data/master/ArabMAGIC/arabmagic.zip")
+                      "qtl2data/master/ArabMAGIC/arabmagic_tair8.zip")
     arabmagic <- read_cross2(zipfile)
     saveRDS(arabmagic, rdsfile)
 }
