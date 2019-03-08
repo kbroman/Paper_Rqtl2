@@ -9,8 +9,11 @@ mapping software [R/qtl](https://rqtl.org).
 - [`rqtl2_paper.tex`](rqtl2_paper.tex) - primary LaTeX source
 - [`rqtl2_paper.bib`](rqtl2_paper.bib) - BibTeX references
 - [`R/fig1.R`](R/fig1.R) - code to create Figure 1
+- [`R/fig2.R`](R/fig2.R) - code to create Figure 2
 - [`cfGatti2014/`](cfGatti2014) - comparison to results using genotypes probabilities
   used in from Gatti et al (2014)
+- [`GnanResults`](GnanResults) - Data and analysis files for [Gnan et al. (2014) Genetics
+  198:1751-1758 doi:10.1534/genetics.114.170746](https://doi.org/10.1534/genetics.114.170746)
 
 Current PDF of the paper at <https://www.biostat.wisc.edu/~kbroman/publications/rqtl2_paper.pdf>
 
