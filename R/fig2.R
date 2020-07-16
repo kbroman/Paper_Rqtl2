@@ -5,6 +5,10 @@ library(broman)
 
 # load the data
 rdsfile <- "cache/arabmagic.rds"
+rdsfile_dir <- dirname(rdsfile)
+if(!dir.exists(rdsfile_dir)) {
+    dir.create(rdsfile_dir)
+}
 if(file.exists(rdsfile)) {
     arabmagic <- readRDS(rdsfile)
 } else {

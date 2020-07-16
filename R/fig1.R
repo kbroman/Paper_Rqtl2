@@ -7,6 +7,10 @@
 library(qtl2)
 set.seed(33003221)
 file <- "cache/do.rds"
+dir <- dirname(file)
+if(!dir.exists(dir)) {
+    dir.create(dir)
+}
 if(file.exists(file)) {
     do <- readRDS(file)
 } else {
