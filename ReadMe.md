@@ -2,8 +2,20 @@
 
 [![doi badge](https://zenodo.org/badge/DOI/10.5281/zenodo.2587988.svg)](https://doi.org/10.5281/zenodo.2587988)
 
-This repository contains the source for a manuscript on
-[R/qtl2](http://kbroman.org/qtl2), a re-implementation of the QTL
+This repository contains the source for the manuscript
+
+> Broman KW, Gatti DM, Simecek P, Furlotte NA, Prins P, Sen &#346;,
+> Yandell BS, Churchill GA (2019)
+> R/qtl2: software for mapping quantitative trait loci with
+> high-dimensional data and multi-parent populations.
+> [Genetics](https://academic.oup.com/genetics) 211:495-502
+> [![PubMed](https://kbroman.org/icons16/pubmed-icon.png)](https://www.ncbi.nlm.nih.gov/pubmed/30591514)
+> [![pdf](https://kbroman.org/icons16/pdf-icon.png)](https://academic.oup.com/genetics/article-pdf/211/2/495/37817017/genetics0495.pdf)
+> [![GitHub](https://kbroman.org/icons16/github-icon.png)](https://github.com/kbroman/Paper_Rqtl2)
+> [![R/qtl2 software](https://kbroman.org/icons16/R-icon.png)](https://kbroman.org/qtl2)
+> [![doi](https://kbroman.org/icons16/doi-icon.png)](https://doi.org/10.1534/genetics.118.301595)
+
+[R/qtl2](http://kbroman.org/qtl2) is a re-implementation of the QTL
 mapping software [R/qtl](https://rqtl.org).
 
 - [`rqtl2_paper.tex`](rqtl2_paper.tex) - primary LaTeX source
