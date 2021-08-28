@@ -1,6 +1,6 @@
 ## R/qtl2: QTL mapping with high-dimensional data and multiple-parent populations
 
-[![doi badge](https://zenodo.org/badge/DOI/10.5281/zenodo.2587988.svg)](https://doi.org/10.5281/zenodo.2587988)
+[![DOI](https://zenodo.org/badge/147861377.svg)](https://zenodo.org/badge/latestdoi/147861377)
 
 This repository contains the source for the manuscript
 
